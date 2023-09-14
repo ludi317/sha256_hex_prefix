@@ -1,9 +1,9 @@
+### About
 
-Comparison of Rust and Go implementations of finding sentences that describe the prefix of their SHA256 hex strings.
+Comparison of Rust and Go implementations of finding sentences that describe the first 7 hexadecimals of their SHA256 digests.
 
 Inspired from https://news.ycombinator.com/item?id=37465086
-
-Go:
+#### Go
 
 ```
 $ go build . && time ./sha256
@@ -12,7 +12,7 @@ The SHA256 for this sentence begins with: one, eight, two, a, seven, c and nine.
 ./sha256  31.93s user 0.41s system 99% cpu 32.434 total
 ```
 
-Rust:
+#### Rust
 ```
 $ cargo build --release && time ./sha256_hex_prefix 7
    Compiling sha256_hex_prefix v0.1.0 (/Users/lrehak/rustprojects/sha256_hex_prefix)
@@ -25,3 +25,10 @@ The SHA256 for this sentence begins with: one, eight, two, a, seven, c and nine.
 * Rust 3-4x slower than Go (?!)
 * Rust program accepts the length of the hex string prefix as an argument, whereas in Go it is hardcoded to length 7. 
 Zero-cost abstraction in Rust _should_ allow this customization without sacrificing performance.
+
+### Bonus Round
+This sentence describes the first 8 hexadecimals of its SHA256:
+```
+The SHA256 for this sentence begins with: c, seven, e, seven, c, two, eight and three.
+c7e7c28309457ce759bf7850dede9af83ac9747489eb9cb958227f37bff8aa37
+```
