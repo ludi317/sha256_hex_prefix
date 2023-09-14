@@ -7,6 +7,8 @@ const WORDS: [&str; 16] = [
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "a", "b", "c",
     "d", "e", "f",
 ];
+const SENTENCE_PREFIX: &str = "The SHA256 for this sentence begins with: ";
+const SENTENCE_PREFIX_LEN: usize = SENTENCE_PREFIX.len();
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -25,12 +27,11 @@ fn main() {
 fn describe_hex_string_prefix(length: usize) {
     let mut hasher = Sha256::new();
 
-    let mut sentence = String::with_capacity(128);
-    sentence.push_str("The SHA256 for this sentence begins with: ");
-    let base_len = sentence.len();
+    let mut sentence = String::with_capacity(SENTENCE_PREFIX_LEN + (length - 1) * "seven, ".len() + "and seven.".len() - 1);
+    sentence.push_str(SENTENCE_PREFIX);
 
     for permutation in NUMS.iter().permutations(length) {
-        sentence.truncate(base_len);
+        sentence.truncate(SENTENCE_PREFIX_LEN);
         for (index, &digit) in permutation.iter().enumerate() {
             sentence.push_str(WORDS[*digit as usize]);
             if index == length - 2 {
