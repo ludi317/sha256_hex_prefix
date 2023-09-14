@@ -15,12 +15,13 @@ The SHA256 for this sentence begins with: one, eight, two, a, seven, c and nine.
 Rust:
 ```
 $ cargo build --release && time ./sha256_hex_prefix 7
-    Finished release [optimized] target(s) in 0.08s
+   Compiling sha256_hex_prefix v0.1.0 (/Users/lrehak/rustprojects/sha256_hex_prefix)
+    Finished release [optimized] target(s) in 0.80s
 The SHA256 for this sentence begins with: one, eight, two, a, seven, c and nine.
 182a7c930b0e5227ff8d24b5f4500ff2fa3ee1a57bd35e52d98c6e24c2749ae0
-./sha256_hex_prefix 7  26.01s user 0.26s system 99% cpu 26.368 total
+./sha256_hex_prefix 7  116.84s user 2.15s system 99% cpu 1:59.20 total
 ```
 
-* Rust is 19% faster than Go.
+* Rust 3-4x slower than Go (?!)
 * Rust program accepts the length of the hex string prefix as an argument, whereas in Go it is hardcoded to length 7. 
-Zero-cost abstraction in Rust allows for this customization without sacrificing performance.
+Zero-cost abstraction in Rust _should_ allow this customization without sacrificing performance.

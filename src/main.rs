@@ -30,9 +30,9 @@ fn describe_hex_string_prefix(length: usize) {
     let mut sentence = String::with_capacity(SENTENCE_PREFIX_LEN + (length - 1) * "seven, ".len() + "and seven.".len() - 1);
     sentence.push_str(SENTENCE_PREFIX);
 
-    for permutation in NUMS.iter().permutations(length) {
+    for combo in (0..length).map(|_| NUMS.iter()).multi_cartesian_product() {
         sentence.truncate(SENTENCE_PREFIX_LEN);
-        for (index, &digit) in permutation.iter().enumerate() {
+        for (index, &digit) in combo.iter().enumerate() {
             sentence.push_str(WORDS[*digit as usize]);
             if index == length - 2 {
                 sentence.push_str(" and ");
@@ -47,13 +47,13 @@ fn describe_hex_string_prefix(length: usize) {
 
         let mut matches = true;
         for i in 0..(length / 2) {
-            if (permutation[i * 2] << 4 | permutation[i * 2 + 1] & 0x0f) != checksum[i] {
+            if (combo[i * 2] << 4 | combo[i * 2 + 1] & 0x0f) != checksum[i] {
                 matches = false;
                 break;
             }
         }
         if matches && length % 2 == 1 {
-            if *permutation[length - 1] != checksum[length / 2] >> 4 {
+            if *combo[length - 1] != checksum[length / 2] >> 4 {
                 matches = false;
             }
         }
