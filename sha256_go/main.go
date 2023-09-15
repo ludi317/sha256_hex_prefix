@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"time"
 )
 
 var (
@@ -18,10 +19,11 @@ var (
 )
 
 func main() {
-	self_describe_hash()
+	self_describe_hash() // 32.2s
 }
 
 func self_describe_hash() {
+	start := time.Now()
 	hasher := sha256.New()
 	var buffer bytes.Buffer
 	sum := make([]byte, 0, hasher.Size())
@@ -69,4 +71,5 @@ func self_describe_hash() {
 			}
 		}
 	}
+	fmt.Println(time.Since(start).Round(100*time.Millisecond))
 }

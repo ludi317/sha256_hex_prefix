@@ -1,6 +1,8 @@
 use itertools::Itertools;
 use sha2::{Digest, Sha256};
 use std::env;
+use std::time::Instant;
+
 
 const NUMS: [u8; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 const WORDS: [&str; 16] = [
@@ -19,12 +21,13 @@ fn main() {
     }
 
     match args[1].parse::<usize>() {
-        Ok(length) => describe_hex_string_prefix(length),
+        Ok(length) => describe_hex_string_prefix(length), // 120.7 secs
         Err(_) => println!("Please provide a valid length."),
     }
 }
 
 fn describe_hex_string_prefix(length: usize) {
+    let start = Instant::now();
     let mut hasher = Sha256::new();
 
     let mut sentence = String::with_capacity(SENTENCE_PREFIX_LEN + (length - 1) * "seven, ".len() + "and seven.".len() - 1);
@@ -63,4 +66,6 @@ fn describe_hex_string_prefix(length: usize) {
             println!("{:02x}", checksum);
         }
     }
+    println!("Time elapsed is: {:.1} seconds", start.elapsed().as_secs_f32());
+
 }
