@@ -1,6 +1,7 @@
 use itertools::Itertools;
 use sha2::{Digest, Sha256};
 use std::env;
+use std::io;
 use std::time::Instant;
 
 
@@ -19,15 +20,16 @@ fn main() {
         println!("Give the length of the hex string prefix as an argument.");
         return;
     }
-
+    let start = Instant::now();
     match args[1].parse::<usize>() {
-        Ok(length) => describe_hex_string_prefix(length), // 120.7 secs
+        Ok(length) => describe_hex_string_prefix(length, &mut io::stdout()), // 120.7 secs
         Err(_) => println!("Please provide a valid length."),
     }
+    println!("Time elapsed is: {:.1} seconds", start.elapsed().as_secs_f32());
 }
 
-fn describe_hex_string_prefix(length: usize) {
-    let start = Instant::now();
+fn describe_hex_string_prefix<W: io::Write>(length: usize, writer: &mut W) {
+
     let mut hasher = Sha256::new();
 
     let mut sentence = String::with_capacity(SENTENCE_PREFIX_LEN + (length - 1) * "seven, ".len() + "and seven.".len() - 1);
@@ -62,10 +64,24 @@ fn describe_hex_string_prefix(length: usize) {
         }
 
         if matches {
-            println!("{sentence}");
-            println!("{:02x}", checksum);
+            writeln!(writer, "{sentence}").unwrap();
+            writeln!(writer, "{:02x}", checksum).unwrap();
         }
     }
-    println!("Time elapsed is: {:.1} seconds", start.elapsed().as_secs_f32());
 
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_greet() {
+        let mut buffer = Vec::new();
+
+        describe_hex_string_prefix(4, &mut buffer);
+
+        assert_eq!(buffer, b"The SHA256 for this sentence begins with: zero, b, six and two.
+0b62c3f1bf41205f419fd37a3e028e65a054d6ba913b10711ef53073e9096c85\n");
+    }
 }
