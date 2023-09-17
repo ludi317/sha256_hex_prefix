@@ -15,16 +15,20 @@ const SENTENCE_PREFIX_LEN: usize = SENTENCE_PREFIX.len();
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let length_arg = if args.len() < 2 {
+        7 // default to 7
+    } else {
+        match args[1].parse::<usize>() {
+            Ok(val) => val,
+            Err(_) => {
+                println!("Please provide a valid length.");
+                return;
+            }
+        }
+    };
 
-    if args.len() < 2 {
-        println!("Give the length of the hex string prefix as an argument.");
-        return;
-    }
     let start = Instant::now();
-    match args[1].parse::<usize>() {
-        Ok(length) => describe_hex_string_prefix(length, &mut io::stdout()), // 120.7 secs
-        Err(_) => println!("Please provide a valid length."),
-    }
+    describe_hex_string_prefix(length_arg, &mut io::stdout()); // 120.7 secs
     println!("Time elapsed is: {:.1} seconds", start.elapsed().as_secs_f32());
 }
 
@@ -35,9 +39,11 @@ fn describe_hex_string_prefix<W: io::Write>(length: usize, writer: &mut W) {
     let mut sentence = String::with_capacity(SENTENCE_PREFIX_LEN + (length - 1) * "seven, ".len() + "and seven.".len() - 1);
     sentence.push_str(SENTENCE_PREFIX);
 
+    // iterate through all possible combinations of length digits
     for combo in (0..length).map(|_| NUMS.iter()).multi_cartesian_product() {
         sentence.truncate(SENTENCE_PREFIX_LEN);
         for (index, &digit) in combo.iter().enumerate() {
+            // build the sentence
             sentence.push_str(WORDS[*digit as usize]);
             if index == length - 2 {
                 sentence.push_str(" and ");
@@ -47,9 +53,11 @@ fn describe_hex_string_prefix<W: io::Write>(length: usize, writer: &mut W) {
         }
         sentence.push_str(".");
 
+        // calculate the SHA256 hash of the sentence
         hasher.update(&sentence.as_bytes());
         let checksum = hasher.finalize_reset();
 
+        // check if the checksum matches the combo
         let mut matches = true;
         for i in 0..(length / 2) {
             if (combo[i * 2] << 4 | combo[i * 2 + 1] & 0x0f) != checksum[i] {
