@@ -19,11 +19,12 @@ var (
 )
 
 func main() {
+	start := time.Now()
 	self_describe_hash() // 32.2s
+	fmt.Println("Go time elapsed is:", time.Since(start).Round(100*time.Millisecond))
 }
 
 func self_describe_hash() {
-	start := time.Now()
 	hasher := sha256.New()
 	var buffer bytes.Buffer
 	sum := make([]byte, 0, hasher.Size())
@@ -31,6 +32,7 @@ func self_describe_hash() {
 	buffer.WriteString("The SHA256 for this sentence begins with: ")
 	baseLen := buffer.Len()
 
+	// 7 for-loops
 	for i1 := 0; i1 < _size; i1++ {
 		for i2 := 0; i2 < _size; i2++ {
 			for i3 := 0; i3 < _size; i3++ {
@@ -38,6 +40,8 @@ func self_describe_hash() {
 					for i5 := 0; i5 < _size; i5++ {
 						for i6 := 0; i6 < _size; i6++ {
 							for i7 := 0; i7 < _size; i7++ {
+
+								// build sentence
 								buffer.Truncate(baseLen)
 								buffer.Write(_names[i1])
 								buffer.WriteString(", ")
@@ -54,9 +58,12 @@ func self_describe_hash() {
 								buffer.Write(_names[i7])
 								buffer.WriteString(".")
 
+								// compute checksum
 								hasher.Reset()
 								hasher.Write(buffer.Bytes())
 								sum := hasher.Sum(sum[:0])
+
+								// compare checksum
 								if byte(i1<<4|i2&0x0f) == sum[0] &&
 									byte(i3<<4|i4&0x0f) == sum[1] &&
 									byte(i5<<4|i6&0x0f) == sum[2] &&
@@ -71,5 +78,4 @@ func self_describe_hash() {
 			}
 		}
 	}
-	fmt.Println(time.Since(start).Round(100*time.Millisecond))
 }

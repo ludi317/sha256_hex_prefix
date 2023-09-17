@@ -29,7 +29,7 @@ fn main() {
 
     let start = Instant::now();
     describe_hex_string_prefix(length_arg, &mut io::stdout()); // 120.7 secs
-    println!("Time elapsed is: {:.1} seconds", start.elapsed().as_secs_f32());
+    println!("Rust time elapsed is: {:.1} seconds", start.elapsed().as_secs_f32());
 }
 
 fn describe_hex_string_prefix<W: io::Write>(length: usize, writer: &mut W) {
