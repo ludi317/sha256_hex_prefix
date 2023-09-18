@@ -6,23 +6,21 @@ Inspired from https://news.ycombinator.com/item?id=37465086
 #### Go
 
 ```
-$ go build . && time ./sha256
+$ ./sha256_go 
 The SHA256 for this sentence begins with: one, eight, two, a, seven, c and nine.
 182a7c930b0e5227ff8d24b5f4500ff2fa3ee1a57bd35e52d98c6e24c2749ae0
-./sha256  31.93s user 0.41s system 99% cpu 32.434 total
+Go time elapsed is: 30.9s
 ```
 
 #### Rust
 ```
-$ cargo build --release && time ./sha256_hex_prefix 7
-   Compiling sha256_hex_prefix v0.1.0 (/Users/lrehak/rustprojects/sha256_hex_prefix)
-    Finished release [optimized] target(s) in 0.80s
+$ ./sha256_hex_prefix  
 The SHA256 for this sentence begins with: one, eight, two, a, seven, c and nine.
 182a7c930b0e5227ff8d24b5f4500ff2fa3ee1a57bd35e52d98c6e24c2749ae0
-./sha256_hex_prefix 7  116.84s user 2.15s system 99% cpu 1:59.20 total
+Rust time elapsed is: 33.8 seconds
 ```
 
-* Rust implementation is 3-4x slower than Go (?!)
+* Rust implementation is about as fast as Go. They are dominated by the time it takes to compute SHA256 digests. Each one imports a cryptographic library with assembly implementations for performance. 
 * The Rust program is more flexible, since it accepts the length of the hex string prefix as an argument. Zero-cost abstraction in Rust _should_ allow this configurability without sacrificing performance. 
 * The Go program has 7 nested for-loops, each one iterating over all hexadecimals, fixing the prefix length to 7. 
 

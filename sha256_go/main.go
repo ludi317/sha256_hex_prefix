@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"io"
+	"os"
 	"time"
 )
 
@@ -20,15 +22,12 @@ var (
 
 func main() {
 	start := time.Now()
-	self_describe_hash() // 32.2s
+	self_describe_hash(os.Stdout) // 30.9 secs
 	fmt.Println("Go time elapsed is:", time.Since(start).Round(100*time.Millisecond))
 }
 
-func self_describe_hash() {
-	hasher := sha256.New()
+func self_describe_hash(w io.Writer) {
 	var buffer bytes.Buffer
-	sum := make([]byte, 0, hasher.Size())
-
 	buffer.WriteString("The SHA256 for this sentence begins with: ")
 	baseLen := buffer.Len()
 
@@ -59,17 +58,15 @@ func self_describe_hash() {
 								buffer.WriteString(".")
 
 								// compute checksum
-								hasher.Reset()
-								hasher.Write(buffer.Bytes())
-								sum := hasher.Sum(sum[:0])
+								sum := sha256.Sum256(buffer.Bytes())
 
 								// compare checksum
 								if byte(i1<<4|i2&0x0f) == sum[0] &&
 									byte(i3<<4|i4&0x0f) == sum[1] &&
 									byte(i5<<4|i6&0x0f) == sum[2] &&
 									byte(i7) == sum[3]>>4 {
-									fmt.Println(buffer.String())
-									fmt.Printf("%02x\n", sum)
+									fmt.Fprintln(w, buffer.String())
+									fmt.Fprintf(w, "%02x\n", sum)
 								}
 							}
 						}

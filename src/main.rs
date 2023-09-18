@@ -1,8 +1,8 @@
 use itertools::Itertools;
-use sha2::{Digest, Sha256};
 use std::env;
 use std::io;
 use std::time::Instant;
+use ring::digest;
 
 
 const NUMS: [u8; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -28,13 +28,11 @@ fn main() {
     };
 
     let start = Instant::now();
-    describe_hex_string_prefix(length_arg, &mut io::stdout()); // 120.7 secs
+    describe_hex_string_prefix(length_arg, &mut io::stdout()); // 33.8 secs
     println!("Rust time elapsed is: {:.1} seconds", start.elapsed().as_secs_f32());
 }
 
 fn describe_hex_string_prefix<W: io::Write>(length: usize, writer: &mut W) {
-
-    let mut hasher = Sha256::new();
 
     let mut sentence = String::with_capacity(SENTENCE_PREFIX_LEN + (length - 1) * "seven, ".len() + "and seven.".len() - 1);
     sentence.push_str(SENTENCE_PREFIX);
@@ -54,8 +52,8 @@ fn describe_hex_string_prefix<W: io::Write>(length: usize, writer: &mut W) {
         sentence.push_str(".");
 
         // calculate the SHA256 hash of the sentence
-        hasher.update(&sentence.as_bytes());
-        let checksum = hasher.finalize_reset();
+        let digest_result = digest::digest(&digest::SHA256, sentence.as_bytes());
+        let checksum = digest_result.as_ref();
 
         // check if the checksum matches the combo
         let mut matches = true;
@@ -73,7 +71,7 @@ fn describe_hex_string_prefix<W: io::Write>(length: usize, writer: &mut W) {
 
         if matches {
             writeln!(writer, "{sentence}").unwrap();
-            writeln!(writer, "{:02x}", checksum).unwrap();
+            writeln!(writer, "{}", hex::encode(checksum)).unwrap();
         }
     }
 
@@ -84,7 +82,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_greet() {
+    fn test_length_4() {
         let mut buffer = Vec::new();
 
         describe_hex_string_prefix(4, &mut buffer);
